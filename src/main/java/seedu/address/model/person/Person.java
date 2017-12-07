@@ -71,10 +71,8 @@ public class Person {
         return Objects.hash(name, phone, email, address, tags);
     }
 
-    /**
-     * Formats the person as text, showing all contact details.
-     */
-    default String getAsText() {
+    @Override
+    public String toString() {
         final StringBuilder builder = new StringBuilder();
         builder.append(getName())
                 .append(" Phone: ")
@@ -86,11 +84,6 @@ public class Person {
                 .append(" Tags: ");
         getTags().forEach(builder::append);
         return builder.toString();
-    }
-    
-    @Override
-    public String toString() {
-        return getAsText();
     }
 
 }
