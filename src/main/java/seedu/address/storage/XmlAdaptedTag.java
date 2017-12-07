@@ -1,9 +1,9 @@
 package seedu.address.storage;
 
+import javax.xml.bind.annotation.XmlValue;
+
 import seedu.address.commons.exceptions.IllegalValueException;
 import seedu.address.model.tag.Tag;
-
-import javax.xml.bind.annotation.XmlValue;
 
 /**
  * JAXB-friendly adapted version of the Tag.
@@ -11,7 +11,7 @@ import javax.xml.bind.annotation.XmlValue;
 public class XmlAdaptedTag {
 
     @XmlValue
-    public String tagName;
+    private String tagName;
 
     /**
      * Constructs an XmlAdaptedTag.

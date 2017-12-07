@@ -1,14 +1,17 @@
 package seedu.address.logic.commands;
 
+import java.util.List;
+
 import seedu.address.commons.core.Messages;
-import seedu.address.commons.core.UnmodifiableObservableList;
+import seedu.address.commons.core.index.Index;
+import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.model.person.ReadOnlyPerson;
-import seedu.address.model.person.UniquePersonList.PersonNotFoundException;
+import seedu.address.model.person.exceptions.PersonNotFoundException;
 
 /**
  * Deletes a person identified using it's last displayed index from the address book.
  */
-public class DeleteCommand extends Command {
+public class DeleteCommand extends UndoableCommand {
 
     public static final String COMMAND_WORD = "delete";
 
@@ -19,24 +22,23 @@ public class DeleteCommand extends Command {
 
     public static final String MESSAGE_DELETE_PERSON_SUCCESS = "Deleted Person: %1$s";
 
-    public final int targetIndex;
+    private final Index targetIndex;
 
-    public DeleteCommand(int targetIndex) {
+    public DeleteCommand(Index targetIndex) {
         this.targetIndex = targetIndex;
     }
 
 
     @Override
-    public CommandResult execute() {
+    public CommandResult executeUndoableCommand() throws CommandException {
 
-        UnmodifiableObservableList<ReadOnlyPerson> lastShownList = model.getFilteredPersonList();
+        List<ReadOnlyPerson> lastShownList = model.getFilteredPersonList();
 
-        if (lastShownList.size() < targetIndex) {
-            indicateAttemptToExecuteIncorrectCommand();
-            return new CommandResult(Messages.MESSAGE_INVALID_PERSON_DISPLAYED_INDEX);
+        if (targetIndex.getZeroBased() >= lastShownList.size()) {
+            throw new CommandException(Messages.MESSAGE_INVALID_PERSON_DISPLAYED_INDEX);
         }
 
-        ReadOnlyPerson personToDelete = lastShownList.get(targetIndex - 1);
+        ReadOnlyPerson personToDelete = lastShownList.get(targetIndex.getZeroBased());
 
         try {
             model.deletePerson(personToDelete);
@@ -47,4 +49,10 @@ public class DeleteCommand extends Command {
         return new CommandResult(String.format(MESSAGE_DELETE_PERSON_SUCCESS, personToDelete));
     }
 
+    @Override
+    public boolean equals(Object other) {
+        return other == this // short circuit if same object
+                || (other instanceof DeleteCommand // instanceof handles nulls
+                && this.targetIndex.equals(((DeleteCommand) other).targetIndex)); // state check
+    }
 }

@@ -1,19 +1,20 @@
 package seedu.address.commons.util;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.rules.TemporaryFolder;
-import seedu.address.commons.core.Config;
-import seedu.address.commons.exceptions.DataConversionException;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.logging.Level;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.junit.rules.TemporaryFolder;
+
+import seedu.address.commons.core.Config;
+import seedu.address.commons.exceptions.DataConversionException;
 
 public class ConfigUtilTest {
 
@@ -26,8 +27,8 @@ public class ConfigUtilTest {
     public TemporaryFolder testFolder = new TemporaryFolder();
 
     @Test
-    public void read_null_assertionFailure() throws DataConversionException {
-        thrown.expect(AssertionError.class);
+    public void read_null_throwsNullPointerException() throws DataConversionException {
+        thrown.expect(NullPointerException.class);
         read(null);
     }
 
@@ -75,8 +76,6 @@ public class ConfigUtilTest {
         config.setAppTitle("Typical App Title");
         config.setLogLevel(Level.INFO);
         config.setUserPrefsFilePath("C:\\preferences.json");
-        config.setAddressBookFilePath("addressbook.xml");
-        config.setAddressBookName("TypicalAddressBookName");
         return config;
     }
 
@@ -86,14 +85,14 @@ public class ConfigUtilTest {
     }
 
     @Test
-    public void save_nullConfig_assertionFailure() throws IOException {
-        thrown.expect(AssertionError.class);
+    public void save_nullConfig_throwsNullPointerException() throws IOException {
+        thrown.expect(NullPointerException.class);
         save(null, "SomeFile.json");
     }
 
     @Test
-    public void save_nullFile_assertionFailure() throws IOException {
-        thrown.expect(AssertionError.class);
+    public void save_nullFile_throwsNullPointerException() throws IOException {
+        thrown.expect(NullPointerException.class);
         save(new Config(), null);
     }
 

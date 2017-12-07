@@ -1,5 +1,6 @@
 package seedu.address.model.person;
 
+import static java.util.Objects.requireNonNull;
 
 import seedu.address.commons.exceptions.IllegalValueException;
 
@@ -9,8 +10,14 @@ import seedu.address.commons.exceptions.IllegalValueException;
  */
 public class Address {
 
-    public static final String MESSAGE_ADDRESS_CONSTRAINTS = "Person addresses can be in any format";
-    public static final String ADDRESS_VALIDATION_REGEX = ".+";
+    public static final String MESSAGE_ADDRESS_CONSTRAINTS =
+            "Person addresses can take any values, and it should not be blank";
+
+    /*
+     * The first character of the address must not be a whitespace,
+     * otherwise " " (a blank string) becomes a valid input.
+     */
+    public static final String ADDRESS_VALIDATION_REGEX = "[^\\s].*";
 
     public final String value;
 
@@ -20,7 +27,7 @@ public class Address {
      * @throws IllegalValueException if given address string is invalid.
      */
     public Address(String address) throws IllegalValueException {
-        assert address != null;
+        requireNonNull(address);
         if (!isValidAddress(address)) {
             throw new IllegalValueException(MESSAGE_ADDRESS_CONSTRAINTS);
         }

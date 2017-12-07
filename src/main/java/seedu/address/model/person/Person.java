@@ -1,9 +1,16 @@
 package seedu.address.model.person;
 
-import seedu.address.commons.util.CollectionUtil;
-import seedu.address.model.tag.UniqueTagList;
+import static java.util.Objects.requireNonNull;
+import static seedu.address.commons.util.CollectionUtil.requireAllNonNull;
 
+import java.util.Collections;
 import java.util.Objects;
+import java.util.Set;
+
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import seedu.address.model.tag.Tag;
+import seedu.address.model.tag.UniqueTagList;
 
 /**
  * Represents a Person in the address book.
@@ -11,95 +18,108 @@ import java.util.Objects;
  */
 public class Person implements ReadOnlyPerson {
 
-    private Name name;
-    private Phone phone;
-    private Email email;
-    private Address address;
+    private ObjectProperty<Name> name;
+    private ObjectProperty<Phone> phone;
+    private ObjectProperty<Email> email;
+    private ObjectProperty<Address> address;
 
-    private UniqueTagList tags;
+    private ObjectProperty<UniqueTagList> tags;
 
     /**
      * Every field must be present and not null.
      */
-    public Person(Name name, Phone phone, Email email, Address address, UniqueTagList tags) {
-        assert !CollectionUtil.isAnyNull(name, phone, email, address, tags);
-        this.name = name;
-        this.phone = phone;
-        this.email = email;
-        this.address = address;
-        this.tags = new UniqueTagList(tags); // protect internal tags from changes in the arg list
+    public Person(Name name, Phone phone, Email email, Address address, Set<Tag> tags) {
+        requireAllNonNull(name, phone, email, address, tags);
+        this.name = new SimpleObjectProperty<>(name);
+        this.phone = new SimpleObjectProperty<>(phone);
+        this.email = new SimpleObjectProperty<>(email);
+        this.address = new SimpleObjectProperty<>(address);
+        // protect internal tags from changes in the arg list
+        this.tags = new SimpleObjectProperty<>(new UniqueTagList(tags));
     }
 
     /**
      * Creates a copy of the given ReadOnlyPerson.
      */
     public Person(ReadOnlyPerson source) {
-        this(source.getName(), source.getPhone(), source.getEmail(), source.getAddress(), source.getTags());
+        this(source.getName(), source.getPhone(), source.getEmail(), source.getAddress(),
+                source.getTags());
     }
 
     public void setName(Name name) {
-        assert name != null;
-        this.name = name;
+        this.name.set(requireNonNull(name));
+    }
+
+    @Override
+    public ObjectProperty<Name> nameProperty() {
+        return name;
     }
 
     @Override
     public Name getName() {
-        return name;
+        return name.get();
     }
 
     public void setPhone(Phone phone) {
-        assert phone != null;
-        this.phone = phone;
+        this.phone.set(requireNonNull(phone));
+    }
+
+    @Override
+    public ObjectProperty<Phone> phoneProperty() {
+        return phone;
     }
 
     @Override
     public Phone getPhone() {
-        return phone;
+        return phone.get();
     }
 
     public void setEmail(Email email) {
-        assert email != null;
-        this.email = email;
+        this.email.set(requireNonNull(email));
+    }
+
+    @Override
+    public ObjectProperty<Email> emailProperty() {
+        return email;
     }
 
     @Override
     public Email getEmail() {
-        return email;
+        return email.get();
     }
 
     public void setAddress(Address address) {
-        assert address != null;
-        this.address = address;
+        this.address.set(requireNonNull(address));
     }
 
     @Override
-    public Address getAddress() {
+    public ObjectProperty<Address> addressProperty() {
         return address;
     }
 
     @Override
-    public UniqueTagList getTags() {
-        return new UniqueTagList(tags);
+    public Address getAddress() {
+        return address.get();
     }
 
     /**
-     * Replaces this person's tags with the tags in the argument tag list.
+     * Returns an immutable tag set, which throws {@code UnsupportedOperationException}
+     * if modification is attempted.
      */
-    public void setTags(UniqueTagList replacement) {
-        tags.setTags(replacement);
+    @Override
+    public Set<Tag> getTags() {
+        return Collections.unmodifiableSet(tags.get().toSet());
+    }
+
+    public ObjectProperty<UniqueTagList> tagProperty() {
+        return tags;
     }
 
     /**
-     * Updates this person with the details of {@code replacement}.
+     * Replaces this person's tags with the tags in the argument tag set.
      */
-    public void resetData(ReadOnlyPerson replacement) {
-        assert replacement != null;
-
-        this.setName(replacement.getName());
-        this.setPhone(replacement.getPhone());
-        this.setEmail(replacement.getEmail());
-        this.setAddress(replacement.getAddress());
-        this.setTags(replacement.getTags());
+    public void setTags(Set<Tag> replacement) {
+        tags.set(new UniqueTagList(replacement));
     }
 
     @Override

@@ -1,5 +1,9 @@
 package seedu.address.model.person;
 
+import java.util.Set;
+
+import javafx.beans.property.ObjectProperty;
+import seedu.address.model.tag.Tag;
 import seedu.address.model.tag.UniqueTagList;
 
 /**
@@ -8,16 +12,16 @@ import seedu.address.model.tag.UniqueTagList;
  */
 public interface ReadOnlyPerson {
 
+    ObjectProperty<Name> nameProperty();
     Name getName();
+    ObjectProperty<Phone> phoneProperty();
     Phone getPhone();
+    ObjectProperty<Email> emailProperty();
     Email getEmail();
+    ObjectProperty<Address> addressProperty();
     Address getAddress();
-
-    /**
-     * The returned TagList is a deep copy of the internal TagList,
-     * changes on the returned list will not affect the person's internal tags.
-     */
-    UniqueTagList getTags();
+    ObjectProperty<UniqueTagList> tagProperty();
+    Set<Tag> getTags();
 
     /**
      * Returns true if both have the same state. (interfaces cannot override .equals)

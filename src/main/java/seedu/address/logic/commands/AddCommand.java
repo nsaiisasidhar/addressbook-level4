@@ -1,24 +1,38 @@
 package seedu.address.logic.commands;
 
-import seedu.address.commons.exceptions.IllegalValueException;
-import seedu.address.model.person.*;
-import seedu.address.model.tag.Tag;
-import seedu.address.model.tag.UniqueTagList;
+import static java.util.Objects.requireNonNull;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_ADDRESS;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_EMAIL;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_TAG;
 
-import java.util.HashSet;
-import java.util.Set;
+import seedu.address.logic.commands.exceptions.CommandException;
+import seedu.address.model.person.Person;
+import seedu.address.model.person.ReadOnlyPerson;
+import seedu.address.model.person.exceptions.DuplicatePersonException;
 
 /**
  * Adds a person to the address book.
  */
-public class AddCommand extends Command {
+public class AddCommand extends UndoableCommand {
 
     public static final String COMMAND_WORD = "add";
 
     public static final String MESSAGE_USAGE = COMMAND_WORD + ": Adds a person to the address book. "
-            + "Parameters: NAME p/PHONE e/EMAIL a/ADDRESS  [t/TAG]...\n"
-            + "Example: " + COMMAND_WORD
-            + " John Doe p/98765432 e/johnd@gmail.com a/311, Clementi Ave 2, #02-25 t/friends t/owesMoney";
+            + "Parameters: "
+            + PREFIX_NAME + "NAME "
+            + PREFIX_PHONE + "PHONE "
+            + PREFIX_EMAIL + "EMAIL "
+            + PREFIX_ADDRESS + "ADDRESS "
+            + "[" + PREFIX_TAG + "TAG]...\n"
+            + "Example: " + COMMAND_WORD + " "
+            + PREFIX_NAME + "John Doe "
+            + PREFIX_PHONE + "98765432 "
+            + PREFIX_EMAIL + "johnd@example.com "
+            + PREFIX_ADDRESS + "311, Clementi Ave 2, #02-25 "
+            + PREFIX_TAG + "friends "
+            + PREFIX_TAG + "owesMoney";
 
     public static final String MESSAGE_SUCCESS = "New person added: %1$s";
     public static final String MESSAGE_DUPLICATE_PERSON = "This person already exists in the address book";
@@ -26,35 +40,28 @@ public class AddCommand extends Command {
     private final Person toAdd;
 
     /**
-     * Creates an AddCommand using raw values.
-     *
-     * @throws IllegalValueException if any of the raw values are invalid
+     * Creates an AddCommand to add the specified {@code ReadOnlyPerson}
      */
-    public AddCommand(String name, String phone, String email, String address, Set<String> tags)
-            throws IllegalValueException {
-        final Set<Tag> tagSet = new HashSet<>();
-        for (String tagName : tags) {
-            tagSet.add(new Tag(tagName));
-        }
-        this.toAdd = new Person(
-                new Name(name),
-                new Phone(phone),
-                new Email(email),
-                new Address(address),
-                new UniqueTagList(tagSet)
-        );
+    public AddCommand(ReadOnlyPerson person) {
+        toAdd = new Person(person);
     }
 
     @Override
-    public CommandResult execute() {
-        assert model != null;
+    public CommandResult executeUndoableCommand() throws CommandException {
+        requireNonNull(model);
         try {
             model.addPerson(toAdd);
             return new CommandResult(String.format(MESSAGE_SUCCESS, toAdd));
-        } catch (UniquePersonList.DuplicatePersonException e) {
-            return new CommandResult(MESSAGE_DUPLICATE_PERSON);
+        } catch (DuplicatePersonException e) {
+            throw new CommandException(MESSAGE_DUPLICATE_PERSON);
         }
 
     }
 
+    @Override
+    public boolean equals(Object other) {
+        return other == this // short circuit if same object
+                || (other instanceof AddCommand // instanceof handles nulls
+                && toAdd.equals(((AddCommand) other).toAdd));
+    }
 }

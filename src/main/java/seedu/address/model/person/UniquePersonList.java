@@ -1,12 +1,17 @@
 package seedu.address.model.person;
 
+import static java.util.Objects.requireNonNull;
+
+import java.util.Iterator;
+import java.util.List;
+
+import org.fxmisc.easybind.EasyBind;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import seedu.address.commons.core.UnmodifiableObservableList;
 import seedu.address.commons.util.CollectionUtil;
-import seedu.address.commons.exceptions.DuplicateDataException;
-
-import java.util.*;
+import seedu.address.model.person.exceptions.DuplicatePersonException;
+import seedu.address.model.person.exceptions.PersonNotFoundException;
 
 /**
  * A list of persons that enforces uniqueness between its elements and does not allow nulls.
@@ -19,12 +24,14 @@ import java.util.*;
 public class UniquePersonList implements Iterable<Person> {
 
     private final ObservableList<Person> internalList = FXCollections.observableArrayList();
+    // used by asObservableList()
+    private final ObservableList<ReadOnlyPerson> mappedList = EasyBind.map(internalList, (person) -> person);
 
     /**
      * Returns true if the list contains an equivalent person as the given argument.
      */
     public boolean contains(ReadOnlyPerson toCheck) {
-        assert toCheck != null;
+        requireNonNull(toCheck);
         return internalList.contains(toCheck);
     }
 
@@ -33,34 +40,34 @@ public class UniquePersonList implements Iterable<Person> {
      *
      * @throws DuplicatePersonException if the person to add is a duplicate of an existing person in the list.
      */
-    public void add(Person toAdd) throws DuplicatePersonException {
-        assert toAdd != null;
+    public void add(ReadOnlyPerson toAdd) throws DuplicatePersonException {
+        requireNonNull(toAdd);
         if (contains(toAdd)) {
             throw new DuplicatePersonException();
         }
-        internalList.add(toAdd);
+        internalList.add(new Person(toAdd));
     }
 
     /**
-     * Updates the person in the list at position {@code index} with {@code editedPerson}.
+     * Replaces the person {@code target} in the list with {@code editedPerson}.
      *
-     * @throws DuplicatePersonException if updating the person's details causes the person to be equivalent to
-     *      another existing person in the list.
-     * @throws IndexOutOfBoundsException if {@code index} < 0 or >= the size of the list.
+     * @throws DuplicatePersonException if the replacement is equivalent to another existing person in the list.
+     * @throws PersonNotFoundException if {@code target} could not be found in the list.
      */
-    public void updatePerson(int index, ReadOnlyPerson editedPerson) throws DuplicatePersonException {
-        assert editedPerson != null;
+    public void setPerson(ReadOnlyPerson target, ReadOnlyPerson editedPerson)
+            throws DuplicatePersonException, PersonNotFoundException {
+        requireNonNull(editedPerson);
 
-        Person personToUpdate = internalList.get(index);
-        if (!personToUpdate.equals(editedPerson) && internalList.contains(editedPerson)) {
+        int index = internalList.indexOf(target);
+        if (index == -1) {
+            throw new PersonNotFoundException();
+        }
+
+        if (!target.equals(editedPerson) && internalList.contains(editedPerson)) {
             throw new DuplicatePersonException();
         }
 
-        personToUpdate.resetData(editedPerson);
-        // TODO: The code below is just a workaround to notify observers of the updated person.
-        // The right way is to implement observable properties in the Person class.
-        // Then, PersonCard should then bind its text labels to those observable properties.
-        internalList.set(index, personToUpdate);
+        internalList.set(index, new Person(editedPerson));
     }
 
     /**
@@ -69,7 +76,7 @@ public class UniquePersonList implements Iterable<Person> {
      * @throws PersonNotFoundException if no such person could be found in the list.
      */
     public boolean remove(ReadOnlyPerson toRemove) throws PersonNotFoundException {
-        assert toRemove != null;
+        requireNonNull(toRemove);
         final boolean personFoundAndDeleted = internalList.remove(toRemove);
         if (!personFoundAndDeleted) {
             throw new PersonNotFoundException();
@@ -89,8 +96,11 @@ public class UniquePersonList implements Iterable<Person> {
         setPersons(replacement);
     }
 
-    public UnmodifiableObservableList<Person> asObservableList() {
-        return new UnmodifiableObservableList<>(internalList);
+    /**
+     * Returns the backing list as an unmodifiable {@code ObservableList}.
+     */
+    public ObservableList<ReadOnlyPerson> asObservableList() {
+        return FXCollections.unmodifiableObservableList(mappedList);
     }
 
     @Override
@@ -102,28 +112,11 @@ public class UniquePersonList implements Iterable<Person> {
     public boolean equals(Object other) {
         return other == this // short circuit if same object
                 || (other instanceof UniquePersonList // instanceof handles nulls
-                && this.internalList.equals(
-                ((UniquePersonList) other).internalList));
+                        && this.internalList.equals(((UniquePersonList) other).internalList));
     }
 
     @Override
     public int hashCode() {
         return internalList.hashCode();
     }
-
-    /**
-     * Signals that an operation would have violated the 'no duplicates' property of the list.
-     */
-    public static class DuplicatePersonException extends DuplicateDataException {
-        protected DuplicatePersonException() {
-            super("Operation would result in duplicate persons");
-        }
-    }
-
-    /**
-     * Signals that an operation targeting a specified person in the list would fail because
-     * there is no such matching person in the list.
-     */
-    public static class PersonNotFoundException extends Exception {}
-
 }

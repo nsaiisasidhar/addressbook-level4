@@ -1,6 +1,8 @@
 package seedu.address.model;
 
 import static org.junit.Assert.assertEquals;
+import static seedu.address.testutil.TypicalPersons.ALICE;
+import static seedu.address.testutil.TypicalPersons.getTypicalAddressBook;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,7 +19,6 @@ import javafx.collections.ObservableList;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.ReadOnlyPerson;
 import seedu.address.model.tag.Tag;
-import seedu.address.testutil.TypicalTestPersons;
 
 public class AddressBookTest {
 
@@ -33,24 +34,23 @@ public class AddressBookTest {
     }
 
     @Test
-    public void resetData_null_throwsAssertionError() {
-        thrown.expect(AssertionError.class);
+    public void resetData_null_throwsNullPointerException() {
+        thrown.expect(NullPointerException.class);
         addressBook.resetData(null);
     }
 
     @Test
     public void resetData_withValidReadOnlyAddressBook_replacesData() {
-        AddressBook newData = new TypicalTestPersons().getTypicalAddressBook();
+        AddressBook newData = getTypicalAddressBook();
         addressBook.resetData(newData);
         assertEquals(newData, addressBook);
     }
 
     @Test
     public void resetData_withDuplicatePersons_throwsAssertionError() {
-        TypicalTestPersons td = new TypicalTestPersons();
-        // Repeat td.alice twice
-        List<Person> newPersons = Arrays.asList(new Person(td.alice), new Person(td.alice));
-        List<Tag> newTags = td.alice.getTags().asObservableList();
+        // Repeat ALICE twice
+        List<Person> newPersons = Arrays.asList(new Person(ALICE), new Person(ALICE));
+        List<Tag> newTags = new ArrayList<>(ALICE.getTags());
         AddressBookStub newData = new AddressBookStub(newPersons, newTags);
 
         thrown.expect(AssertionError.class);
@@ -58,16 +58,15 @@ public class AddressBookTest {
     }
 
     @Test
-    public void resetData_withDuplicateTags_throwsAssertionError() {
-        AddressBook typicalAddressBook = new TypicalTestPersons().getTypicalAddressBook();
-        List<ReadOnlyPerson> newPersons = typicalAddressBook.getPersonList();
-        List<Tag> newTags = new ArrayList<>(typicalAddressBook.getTagList());
-        // Repeat the first tag twice
-        newTags.add(newTags.get(0));
-        AddressBookStub newData = new AddressBookStub(newPersons, newTags);
+    public void getPersonList_modifyList_throwsUnsupportedOperationException() {
+        thrown.expect(UnsupportedOperationException.class);
+        addressBook.getPersonList().remove(0);
+    }
 
-        thrown.expect(AssertionError.class);
-        addressBook.resetData(newData);
+    @Test
+    public void getTagList_modifyList_throwsUnsupportedOperationException() {
+        thrown.expect(UnsupportedOperationException.class);
+        addressBook.getTagList().remove(0);
     }
 
     /**

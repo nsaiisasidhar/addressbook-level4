@@ -1,10 +1,12 @@
 package seedu.address.commons.core;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-
-import static org.junit.Assert.*;
 
 public class ConfigTest {
     @Rule
@@ -12,11 +14,9 @@ public class ConfigTest {
 
     @Test
     public void toString_defaultObject_stringReturned() {
-        String defaultConfigAsString = "App title : Address App\n" +
-                "Current log level : INFO\n" +
-                "Preference file Location : preferences.json\n" +
-                "Local data file location : data/addressbook.xml\n" +
-                "AddressBook name : MyAddressBook";
+        String defaultConfigAsString = "App title : Address App\n"
+                + "Current log level : INFO\n"
+                + "Preference file Location : preferences.json";
 
         assertEquals(defaultConfigAsString, new Config().toString());
     }
