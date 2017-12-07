@@ -9,7 +9,7 @@ import java.util.Objects;
  * Represents a Person in the address book.
  * Guarantees: details are present and not null, field values are validated.
  */
-public class Person implements ReadOnlyPerson {
+public class Person {
 
     private Name name;
     private Phone phone;
@@ -28,13 +28,6 @@ public class Person implements ReadOnlyPerson {
         this.email = email;
         this.address = address;
         this.tags = new UniqueTagList(tags); // protect internal tags from changes in the arg list
-    }
-
-    /**
-     * Creates a copy of the given ReadOnlyPerson.
-     */
-    public Person(ReadOnlyPerson source) {
-        this(source.getName(), source.getPhone(), source.getEmail(), source.getAddress(), source.getTags());
     }
 
     @Override
